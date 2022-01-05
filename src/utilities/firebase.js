@@ -6,7 +6,7 @@ import {
     set
 } from 'firebase/database';
 import { useState, useEffect } from 'react';
-
+import { getAuth, GoogleAuthProvider, onIdTokenChanged, signInWithPopup, signOut } from 'firebase/auth';
 
 // Web app's Firebase configuration
 const firebaseConfig = {
@@ -19,6 +19,13 @@ const firebaseConfig = {
     appId: "1:906362526576:web:2110eba672813a5f87cdb5"
 
 };
+
+export const signInWithGoogle = () => {
+    signInWithPopup(getAuth(firebase), new GoogleAuthProvider());
+};
+
+const firebaseSignOut = () => signOut(getAuth(firebase));
+export { firebaseSignOut as signOut };
 
 export const useData = (path, transform) => {
     const [data, setData] = useState();
@@ -43,6 +50,16 @@ export const useData = (path, transform) => {
     }, [path, transform]);
   
     return [data, loading, error];
+};
+
+export const useUserState = () => {
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    onIdTokenChanged(getAuth(firebase), setUser);
+  }, []);
+
+  return [user];
 };
 
 export const setData = (path, value) => (
